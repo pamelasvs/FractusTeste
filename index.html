@@ -1,128 +1,62 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#241b2f">
-  <meta name="description" content="Fractus: uma aventura egípcia para aprender frações.">
-  <title>Fractus — O Tesouro do Faraó</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fractus — Aventura das Frações</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <main class="game-shell">
-    <header class="topbar">
-      <a class="brand" href="#" aria-label="Fractus, início">
-        <span class="brand-symbol">𓂀</span>
-        <span>FRACTUS<small>O TESOURO DO FARAÓ</small></span>
-      </a>
-      <div class="hud">
-        <span>🪙 <b id="coins">0</b></span>
-        <span>📜 <b id="scrollCount">0/4</b></span>
-        <span>❤️ <b id="lives">3</b></span>
-      </div>
-    </header>
+<div class="game-shell">
+  <header class="hud">
+    <div class="logo"><span class="logo-mark">½</span><div><strong>FRACTUS</strong><small>AVENTURA DAS FRAÇÕES</small></div></div>
+    <div class="hud-stat"><span>🪙</span><b id="coins">000</b></div>
+    <div class="hud-stat"><span>⭐</span><b id="score">0000</b></div>
+    <div class="hud-stat"><span>❤️</span><b id="lives">3</b></div>
+    <button id="soundBtn" class="hud-button" title="Som">♫</button>
+  </header>
 
-    <section class="intro" id="intro">
-      <div class="intro-content">
-        <span class="eyebrow">UMA AVENTURA MATEMÁTICA</span>
-        <h1>O segredo das<br><span>frações perdidas</span></h1>
-        <p>
-          Explore o Egito Antigo, derrote mini múmias,
-          encontre pergaminhos e descubra o tesouro escondido
-          do faraó.
-        </p>
-        <button id="startBtn" class="primary-btn">▶ COMEÇAR A AVENTURA</button>
-        <p class="small-note">Aprenda. Explore. Resolva. Conquiste!</p>
-      </div>
-      <!-- SPRITE: ilustração decorativa do explorador -->
-      <div class="hero-placeholder" aria-label="Espaço para sprite do explorador">
-        <span class="placeholder-label">SPRITE DO HERÓI</span>
-        <span class="hero-emoji">🧭</span>
-        <span class="placeholder-help">Troque pelo seu sprite</span>
-      </div>
-    </section>
-
-    <section class="game-section" id="gameSection" hidden>
-      <div class="level-bar">
-        <div>
-          <span class="eyebrow">FASE 01</span>
-          <h2 id="levelTitle">As Dunas das Frações</h2>
-        </div>
-        <span class="objective" id="objective">Encontre os pergaminhos!</span>
-      </div>
-
-      <div class="game-frame">
-        <canvas
-          id="gameCanvas"
-          width="960"
-          height="480"
-          tabindex="0"
-          aria-label="Jogo de plataforma. Use as setas ou A e D para mover e Espaço para pular."
-        ></canvas>
-
-        <div class="game-overlay" id="pauseOverlay" hidden>
-          <div class="overlay-card">
-            <h2>⏸ Aventura pausada</h2>
-            <button id="resumeBtn" class="primary-btn">Continuar</button>
-          </div>
-        </div>
-
-        <div class="game-overlay" id="endOverlay" hidden>
-          <div class="overlay-card">
-            <div id="endIcon" class="end-icon">🏆</div>
-            <h2 id="endTitle">Aventura concluída!</h2>
-            <p id="endMessage"></p>
-            <button id="restartBtn" class="primary-btn">Jogar novamente</button>
-          </div>
+  <main>
+    <section class="game-frame">
+      <canvas id="gameCanvas" width="960" height="540" aria-label="Jogo de plataforma Fractus"></canvas>
+      <!-- SPRITE DO JOGADOR: coloque seu arquivo em assets/sprites/personagens/jogador.png e configure SPRITE_CONFIG em js/game.js. -->
+      <div class="overlay" id="startOverlay">
+        <div class="title-card">
+          <div class="title-sun">☀</div>
+          <p class="kicker">UMA AVENTURA MATEMÁGICA</p>
+          <h1>FRACTUS</h1>
+          <h2>O TEMPLO DAS FRAÇÕES</h2>
+          <p class="intro">Corra, pule plataformas, colete moedas e resolva desafios para abrir o portal do templo!</p>
+          <button id="playBtn" class="big-button">JOGAR AGORA <span>▶</span></button>
+          <small>Use ← → ou A/D para correr · Espaço / ↑ para pular</small>
         </div>
       </div>
-
-      <div class="mobile-controls" aria-label="Controles do jogo">
-        <button data-key="left" aria-label="Mover para esquerda">◀</button>
-        <button data-key="right" aria-label="Mover para direita">▶</button>
-        <button data-key="jump" class="jump-btn" aria-label="Pular">PULAR ⤴</button>
+      <div class="overlay hidden" id="questionOverlay">
+        <div class="question-card">
+          <div class="question-badge">✦ DESAFIO DO TEMPLO ✦</div>
+          <h2 id="questionTitle">Qual fração está colorida?</h2>
+          <p id="questionHint">Observe as partes do artefato.</p>
+          <div id="fractionVisual" class="fraction-visual"></div>
+          <div id="answerButtons" class="answer-buttons"></div>
+          <p id="questionFeedback" class="question-feedback">Escolha a resposta correta para abrir o caminho!</p>
+        </div>
       </div>
-
-      <div class="game-footer">
-        <span>← → ou A/D: mover</span>
-        <span>ESPAÇO / ↑ / W: pular</span>
-        <button id="pauseBtn" class="secondary-btn">Ⅱ Pausar</button>
-      </div>
-    </section>
-
-    <section class="lesson-panel" id="lessonPanel" hidden>
-      <div class="lesson-icon">📜</div>
-      <div class="lesson-content">
-        <span class="eyebrow">PERGAMINHO DESCOBERTO</span>
-        <h2 id="lessonTitle">Aprendendo frações</h2>
-        <p id="lessonText"></p>
-        <div id="fractionVisual" class="fraction-visual"></div>
-        <p id="questionText" class="question"></p>
-        <div id="answerOptions" class="answer-options"></div>
-        <p id="answerFeedback" class="feedback" aria-live="polite"></p>
-        <button id="continueBtn" class="primary-btn" hidden>Continuar aventura →</button>
+      <div class="overlay hidden" id="endOverlay">
+        <div class="title-card end-card">
+          <p class="kicker">MISSÃO CONCLUÍDA</p><h1 id="endTitle">VOCÊ CONSEGUIU!</h1>
+          <p id="endText">O tesouro do templo é seu.</p>
+          <button id="restartBtn" class="big-button">JOGAR DE NOVO ↻</button>
+        </div>
       </div>
     </section>
-
-    <section class="progress-panel">
-      <div>
-        <span class="eyebrow">SEU APRENDIZADO</span>
-        <h2>Os segredos dos escribas</h2>
-      </div>
-      <div class="scroll-list" id="scrollList">
-        <div class="scroll-item"><span>🔒</span><div><b>O numerador</b><small>Partes escolhidas</small></div></div>
-        <div class="scroll-item"><span>🔒</span><div><b>O denominador</b><small>Partes totais</small></div></div>
-        <div class="scroll-item"><span>🔒</span><div><b>Frações equivalentes</b><small>Valores iguais</small></div></div>
-        <div class="scroll-item"><span>🔒</span><div><b>Somando frações</b><small>Juntando partes</small></div></div>
-      </div>
-    </section>
-
-    <footer>
-      <span>𓆣 FRACTUS</span>
-      <span>Uma jornada de matemática pelo Egito Antigo</span>
-    </footer>
+    <div class="controls-hint">
+      <span><kbd>←</kbd> <kbd>→</kbd> MOVER</span>
+      <span><kbd>ESPAÇO</kbd> PULAR</span>
+      <span class="mission">MISSÃO: encontre o portal dourado! <span id="checkpointText">◆ 0/3 desafios</span></span>
+    </div>
   </main>
+  <footer>FEITO PARA APRENDER JOGANDO <span>✦</span> FRACTUS</footer>
+</div>
+<script src="js/game.js"></script>
 </body>
 </html>

@@ -1,0 +1,413 @@
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Press+Start+2P&display=swap");
+
+:root {
+  --gold: #ffd65a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+  color: white;
+  background: radial-gradient(ellipse at top, #32356d 0, #171a40 58%, #10122b 100%);
+  font-family: "Fredoka", "Trebuchet MS", sans-serif;
+}
+
+.game-shell {
+  width: min(1120px, 100%);
+}
+
+.hud {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  border: 3px solid #44457b;
+  border-radius: 15px;
+  background: #242650;
+  box-shadow: 0 6px 0 #10122b;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: auto;
+}
+
+.logo-mark {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 11px;
+  color: #31245e;
+  background: var(--gold);
+  box-shadow: 0 4px 0 #c48b2b;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.logo strong {
+  display: block;
+  font-size: 20px;
+  letter-spacing: 2px;
+}
+
+.logo small {
+  display: block;
+  margin-top: 2px;
+  color: #b9b5f1;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+}
+
+.hud-stat {
+  display: flex;
+  min-width: 78px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 2px solid #414374;
+  border-radius: 10px;
+  background: #171936;
+  font-size: 16px;
+}
+
+.hud-stat b {
+  color: var(--gold);
+  font-family: "Press Start 2P", monospace;
+  font-size: 11px;
+}
+
+.hud-button {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 10px;
+  color: white;
+  background: #4d438c;
+  font-size: 20px;
+}
+
+.game-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border: 4px solid #4b4a85;
+  border-radius: 17px;
+  background: #73d8f5;
+  box-shadow: 0 9px 0 #10122b;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 17, 47, 0.48);
+  backdrop-filter: blur(2px);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.title-card,
+.question-card {
+  width: 100%;
+  max-width: 500px;
+  padding: 26px 30px;
+  border: 5px solid white;
+  border-radius: 22px;
+  outline: 4px solid #5c48b6;
+  color: #2c2453;
+  background: #fff6d9;
+  box-shadow: 0 10px 0 rgba(25, 20, 69, 0.5);
+  text-align: center;
+}
+
+.title-sun {
+  color: #f3a923;
+  font-size: 35px;
+  line-height: 1;
+}
+
+.kicker {
+  margin: 8px 0;
+  color: #7555c6;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.title-card h1 {
+  margin: 5px 0;
+  color: #704ce1;
+  font-size: clamp(35px, 6vw, 58px);
+  letter-spacing: 3px;
+  text-shadow: 3px 4px 0 #d6c8ff;
+}
+
+.title-card h2 {
+  margin: 0 0 14px;
+  color: #3c326e;
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+
+.intro {
+  max-width: 390px;
+  margin: 0 auto 20px;
+  color: #625b7e;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.big-button {
+  padding: 14px 20px;
+  border: 0;
+  border-radius: 12px;
+  color: #4a2e77;
+  background: #ffbf3f;
+  box-shadow: 0 5px 0 #d78b24;
+  cursor: pointer;
+  font-family: "Fredoka", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  transition: transform 0.12s;
+}
+
+.big-button:hover {
+  transform: translateY(-2px);
+}
+
+.big-button span {
+  margin-left: 8px;
+}
+
+.title-card > small {
+  display: block;
+  margin-top: 18px;
+  color: #81799c;
+  font-size: 10px;
+}
+
+.question-card {
+  max-width: 540px;
+  padding: 24px;
+}
+
+.question-badge {
+  color: #8a63da;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.question-card h2 {
+  margin: 12px 0 5px;
+  font-size: 25px;
+}
+
+.question-card > p {
+  color: #756d91;
+  font-size: 13px;
+}
+
+.fraction-visual {
+  display: flex;
+  min-height: 68px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: 13px auto;
+  padding: 13px;
+  border-radius: 12px;
+  background: #f1e9ff;
+}
+
+.fraction-piece {
+  width: 43px;
+  height: 46px;
+  border: 3px solid #7954dc;
+  border-radius: 7px;
+  background: white;
+}
+
+.fraction-piece.filled {
+  background: #a98aef;
+}
+
+.answer-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.answer-buttons button {
+  padding: 12px 4px;
+  border: 2px solid #d5c8f5;
+  border-radius: 10px;
+  color: #473674;
+  background: white;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.answer-buttons button:hover {
+  border-color: #8765df;
+  background: #eee6ff;
+}
+
+.answer-buttons button:disabled {
+  opacity: 0.8;
+}
+
+.question-feedback {
+  min-height: 18px;
+  margin-bottom: 0;
+}
+
+.controls-hint {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 17px 6px 8px;
+  color: #c8c7f0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.controls-hint span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.controls-hint kbd {
+  padding: 5px 7px;
+  border: 1px solid #6868a2;
+  border-bottom-width: 3px;
+  border-radius: 5px;
+  color: white;
+  background: #343665;
+  font-family: inherit;
+}
+
+.mission {
+  margin-left: auto;
+  color: #ffdb72;
+}
+
+.mission span {
+  margin-left: 10px;
+  color: #c6b6ff;
+}
+
+footer {
+  margin-top: 12px;
+  color: #777aa9;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+footer span {
+  margin: 0 8px;
+  color: #ffd65a;
+}
+
+@media (max-width: 650px) {
+  body {
+    padding: 8px;
+  }
+
+  .hud {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .logo strong {
+    font-size: 15px;
+  }
+
+  .logo small {
+    font-size: 7px;
+  }
+
+  .logo-mark {
+    width: 34px;
+    height: 34px;
+  }
+
+  .hud-stat {
+    min-width: 48px;
+    gap: 4px;
+    padding: 7px 6px;
+    font-size: 12px;
+  }
+
+  .hud-stat b {
+    font-size: 8px;
+  }
+
+  .hud-button {
+    width: 32px;
+    height: 34px;
+  }
+
+  .controls-hint {
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 8px;
+  }
+
+  .mission {
+    width: 100%;
+    justify-content: center;
+    margin-left: 0;
+  }
+
+  .title-card,
+  .question-card {
+    padding: 17px;
+  }
+
+  .intro {
+    font-size: 12px;
+  }
+
+  .question-card h2 {
+    font-size: 20px;
+  }
+
+  .answer-buttons button {
+    padding: 10px 2px;
+    font-size: 13px;
+  }
+
+  .title-card > small {
+    font-size: 8px;
+  }
+}
