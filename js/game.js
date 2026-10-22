@@ -8,8 +8,8 @@ const W = canvas.width, H = canvas.height;
 const $ = (id) => document.getElementById(id);
 
 let keys = {};
-let running = false, pausedForQuestion = false, finished = false;
-let cameraX = 0, score = 0, coins = 0, lives = 3, challengeCount = 0;
+let running = false, pausedForLesson = false, finished = false;
+let cameraX = 0, score = 0, coins = 0, lives = 3, lessonCount = 0;
 let soundOn = true;
 const worldWidth = 2600;
 const gravity = 0.58;
@@ -36,7 +36,16 @@ let mummySpriteLoaded = false;
 mummySprite.onload = () => { mummySpriteLoaded = true; };
 mummySprite.src = "assets/sprites/inimigos/mummy.png";
 
-const player = { x: 70, y: 330, w: 34, h: 44, vx: 0, vy: 0, speed: 3.6, jump: -11.5, grounded: false, invincible: 0, facing: 1 };
+const swordSprite = new Image();
+let swordSpriteLoaded = false;
+swordSprite.onload = () => { swordSpriteLoaded = true; };
+swordSprite.src = "assets/sprites/armas/sword.png";
+
+const player = {
+  x: 70, y: 330, w: 34, h: 44, vx: 0, vy: 0, speed: 3.6,
+  jump: -11.5, grounded: false, invincible: 0, facing: 1,
+  attackTicks: 0, attackCooldown: 0, attackId: 0
+};
 const platforms = [
   {x:0,y:455,w:440,h:100},{x:490,y:420,w:210,h:135},{x:750,y:380,w:180,h:175},
   {x:980,y:435,w:230,h:120},{x:1260,y:390,w:190,h:165},{x:1510,y:440,w:250,h:115},
@@ -55,23 +64,47 @@ const coinItems = [
   ...[1885,1925].map(x=>({x,y:245,taken:false})),
   ...[2190,2230,2270].map(x=>({x,y:295,taken:false}))
 ];
-const gates = [
-  {x:680, opened:false, question:0}, {x:1445,opened:false,question:1}, {x:1995,opened:false,question:2}
+const lessonScrolls = [
+  {x:680, opened:false}, {x:1445,opened:false}, {x:1995,opened:false}
 ];
 const mummies = [
-  { x: 315, y: 415, minX: 265, maxX: 390, direction: 1, defeated: false, tick: 0 },
-  { x: 555, y: 380, minX: 505, maxX: 650, direction: 1, defeated: false, tick: 0 },
-  { x: 845, y: 340, minX: 765, maxX: 885, direction: 1, defeated: false, tick: 0 },
-  { x: 1085, y: 395, minX: 995, maxX: 1160, direction: 1, defeated: false, tick: 0 },
-  { x: 1365, y: 350, minX: 1275, maxX: 1410, direction: 1, defeated: false, tick: 0 },
-  { x: 1645, y: 400, minX: 1525, maxX: 1720, direction: 1, defeated: false, tick: 0 },
-  { x: 1885, y: 355, minX: 1820, maxX: 1945, direction: 1, defeated: false, tick: 0 },
-  { x: 2225, y: 405, minX: 2070, maxX: 2480, direction: 1, defeated: false, tick: 0 }
+  { x: 315, y: 415, minX: 265, maxX: 390, direction: 1, defeated: false, dead: false, tick: 0, deathTick: 0 },
+  { x: 555, y: 380, minX: 505, maxX: 650, direction: 1, defeated: false, dead: false, tick: 0, deathTick: 0 },
+  { x: 845, y: 340, minX: 765, maxX: 885, direction: 1, defeated: false, dead: false, tick: 0, deathTick: 0 },
+  { x: 1085, y: 395, minX: 995, maxX: 1160, direction: 1, defeated: false, dead: false, tick: 0, deathTick: 0 },
+  { x: 1365, y: 350, minX: 1275, maxX: 1410, direction: 1, defeated: false, dead: false, tick: 0, deathTick: 0 },
+  { x: 1645, y: 400, minX: 1525, maxX: 1720, direction: 1, defeated: false, dead: false, tick: 0, deathTick: 0 },
+  { x: 1885, y: 355, minX: 1820, maxX: 1945, direction: 1, defeated: false, dead: false, tick: 0, deathTick: 0 },
+  { x: 2225, y: 405, minX: 2070, maxX: 2480, direction: 1, defeated: false, dead: false, tick: 0, deathTick: 0 }
 ];
-const questions = [
-  {title:"Qual fração representa a parte colorida?",hint:"O artefato foi dividido em 4 partes iguais.",total:4,filled:1,options:["1/4","2/4","3/4","4/4"],answer:"1/4",explain:"Correto! Uma de quatro partes é 1/4."},
-  {title:"Qual fração é equivalente a 1/2?",hint:"Pense em duas partes coloridas de quatro partes iguais.",total:4,filled:2,options:["1/4","2/4","3/4","4/4"],answer:"2/4",explain:"Isso! 1/2 e 2/4 representam a mesma quantidade."},
-  {title:"Você tem 3/4 de um mapa e encontra mais 1/4. Quanto tem?",hint:"Os denominadores são iguais: some os numeradores.",total:4,filled:4,options:["2/4","3/4","4/4","4/8"],answer:"4/4",explain:"Muito bem! 3/4 + 1/4 = 4/4, ou um inteiro."}
+const lessons = [
+  {
+    title: "O que uma fração representa?",
+    content: "Uma fração mostra partes iguais de um inteiro. O número de cima (numerador) conta as partes consideradas; o de baixo (denominador) mostra em quantas partes iguais o inteiro foi dividido.",
+    prompt: "O desenho tem 1 parte colorida de um total de 4. Qual é a fração?",
+    total: 4, filled: 1,
+    options: ["1/4", "2/4", "3/4", "4/4"],
+    answer: "1/4",
+    explain: "Isso! 1 é a parte colorida e 4 é o total de partes iguais."
+  },
+  {
+    title: "Frações equivalentes",
+    content: "Frações equivalentes têm números diferentes, mas representam a mesma quantidade. Multiplicar ou dividir o numerador e o denominador pelo mesmo número mantém o valor.",
+    prompt: "Qual fração representa a mesma quantidade que 1/2?",
+    total: 4, filled: 2,
+    options: ["1/4", "2/4", "3/4", "4/4"],
+    answer: "2/4",
+    explain: "Correto! 1/2 e 2/4 representam metade do inteiro."
+  },
+  {
+    title: "Somando frações",
+    content: "Quando os denominadores são iguais, some os numeradores e mantenha o denominador. Se todas as partes forem preenchidas, a fração equivale a um inteiro.",
+    prompt: "Quanto é 3/4 + 1/4?",
+    total: 4, filled: 4,
+    options: ["2/4", "3/4", "4/4", "4/8"],
+    answer: "4/4",
+    explain: "Muito bem! 3/4 + 1/4 = 4/4, que equivale a 1 inteiro."
+  }
 ];
 
 function roundedRect(x,y,w,h,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();}
@@ -109,16 +142,24 @@ function drawPlayer(){
   if (spriteLoaded) {
     const dw = SPRITE_CONFIG.drawWidth, dh = SPRITE_CONFIG.drawHeight;
     const dx = x + player.w/2 - dw/2;
-    const dy = y + player.h - dh;
+    const dy = y + player.h - dh + 8;
     ctx.save();
     const moving = Math.abs(player.vx) > 0.4;
-    const frame = moving ? Math.floor(spriteTick / SPRITE_CONFIG.frameSpeed) % SPRITE_CONFIG.frames : 0;
-    const sx = frame * SPRITE_CONFIG.frameWidth;
-    const sy = SPRITE_CONFIG.frameRow * SPRITE_CONFIG.frameHeight;
+    const attackFrame = Math.min(3, Math.floor((16 - player.attackTicks) / 4));
+    const frame = player.attackTicks > 0
+      ? attackFrame + 1
+      : moving ? Math.floor(spriteTick / SPRITE_CONFIG.frameSpeed) % SPRITE_CONFIG.frames : 0;
+    const attacking = player.attackTicks > 0;
+    const sx = frame * SPRITE_CONFIG.frameWidth + (attacking ? 22 : 24);
+    const sy = (attacking ? 3 : SPRITE_CONFIG.frameRow) * SPRITE_CONFIG.frameHeight +
+      (attacking ? 32 : 36);
+    const sourceWidth = attacking ? 68 : 42;
+    const sourceHeight = attacking ? 44 : 32;
+    const drawWidth = attacking ? 68 : dw;
     ctx.translate(dx + dw/2, 0);
     if (player.facing < 0) ctx.scale(-1, 1);
-    ctx.drawImage(playerSprite, sx, sy, SPRITE_CONFIG.frameWidth, SPRITE_CONFIG.frameHeight,
-                  -dw/2, dy, dw, dh);
+    ctx.drawImage(playerSprite, sx, sy, sourceWidth, sourceHeight,
+                  -drawWidth/2, dy, drawWidth, dh);
     ctx.restore();
     spriteTick++;
     return;
@@ -137,19 +178,27 @@ function drawPlayer(){
   ctx.restore();
 }
 function drawMummy(mummy) {
-  if (mummy.defeated) return;
+  if (mummy.dead) return;
   const x = mummy.x - cameraX;
   if (x < -60 || x > W + 60) return;
 
   if (mummySpriteLoaded) {
-    const frame = Math.floor(mummy.tick / 10) % 8;
+    const frame = mummy.defeated
+      ? Math.min(25, 22 + Math.floor(mummy.deathTick / 6))
+      : Math.floor(mummy.tick / 10) % 8;
     ctx.save();
-    if (mummy.direction < 0) {
+    if (mummy.defeated) {
+      if (frame === 25) {
+        ctx.drawImage(mummySprite, frame * 96 + 30, 50, 36, 18, x - 1, mummy.y + 20, 36, 18);
+      } else {
+        ctx.drawImage(mummySprite, frame * 96 + 22, 36, 52, 34, x - 10, mummy.y + 8, 52, 34);
+      }
+    } else if (mummy.direction < 0) {
       ctx.translate(x + 24, 0);
       ctx.scale(-1, 1);
-      ctx.drawImage(mummySprite, frame * 96, 0, 96, 96, -24, mummy.y - 10, 48, 48);
+      ctx.drawImage(mummySprite, frame * 96 + 34, 36, 30, 32, -20, mummy.y, 40, 40);
     } else {
-      ctx.drawImage(mummySprite, frame * 96, 0, 96, 96, x - 7, mummy.y - 10, 48, 48);
+      ctx.drawImage(mummySprite, frame * 96 + 34, 36, 30, 32, x - 5, mummy.y, 40, 40);
     }
     ctx.restore();
     return;
@@ -163,11 +212,42 @@ function drawMummy(mummy) {
   ctx.fillRect(x - 2, mummy.y + 10, 34, 4);
   ctx.fillRect(x + 2, mummy.y + 25, 27, 4);
 }
-function drawGate(g){
-  if(g.opened)return;const x=g.x-cameraX;if(x<-50||x>W+50)return;
-  ctx.fillStyle="#8c58cc";ctx.fillRect(x-8,320,10,135);ctx.fillRect(x+36,320,10,135);ctx.fillRect(x-8,314,54,13);
-  ctx.fillStyle="#f8d15a";ctx.fillRect(x,328,30,119);ctx.fillStyle="#6b46b4";ctx.fillRect(x+6,335,18,104);
-  ctx.fillStyle="#fff0a6";ctx.font="bold 19px Fredoka";ctx.textAlign="center";ctx.fillText("?",x+15,385);
+function drawSwordAttack() {
+  if (!swordSpriteLoaded || player.attackTicks <= 0) return;
+
+  const frame = Math.min(7, Math.floor((16 - player.attackTicks) / 2));
+  const x = player.x + player.w / 2 - cameraX + player.facing * 15;
+  ctx.save();
+  ctx.translate(x, player.y + 24);
+  if (player.facing < 0) ctx.scale(-1, 1);
+  ctx.drawImage(swordSprite, frame * 96 + 32, 32, 40, 34, 0, -20, 48, 42);
+  ctx.restore();
+}
+function drawLessonScroll(g, index) {
+  if (g.opened) return;
+  const x = g.x - cameraX;
+  if (x < -60 || x > W + 60) return;
+
+  ctx.fillStyle = "#8b542f";
+  ctx.fillRect(x - 9, 354, 58, 8);
+  ctx.fillRect(x - 9, 426, 58, 8);
+  ctx.fillStyle = "#fff0bd";
+  ctx.fillRect(x - 4, 362, 48, 64);
+  ctx.strokeStyle = "#b77a3c";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x - 4, 362, 48, 64);
+  ctx.fillStyle = "#70452f";
+  ctx.font = "bold 10px Fredoka";
+  ctx.textAlign = "center";
+  ctx.fillText("LIÇÃO", x + 20, 384);
+  ctx.font = "bold 13px Fredoka";
+  ctx.fillText(String(index + 1), x + 20, 403);
+  ctx.strokeStyle = "#bd8c52";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x + 7, 411);
+  ctx.lineTo(x + 33, 411);
+  ctx.stroke();
 }
 function drawPortal(){
  const x=worldWidth-100-cameraX;
@@ -180,9 +260,10 @@ function draw() {
   platforms.forEach(drawPlatform);
   coinItems.forEach(drawCoin);
   mummies.forEach(drawMummy);
-  gates.forEach(drawGate);
+  lessonScrolls.forEach(drawLessonScroll);
   drawPortal();
   drawPlayer();
+  drawSwordAttack();
 
   ctx.fillStyle = "#2d3b63";
   ctx.font = "bold 13px Fredoka";
@@ -195,16 +276,24 @@ function draw() {
 }
 
 function update() {
-  if (!running || pausedForQuestion || finished) return;
+  if (!running || pausedForLesson || finished) return;
 
   mummies.forEach((mummy) => {
-    if (mummy.defeated) return;
+    if (mummy.dead) return;
+    if (mummy.defeated) {
+      mummy.deathTick++;
+      if (mummy.deathTick >= 24) mummy.dead = true;
+      return;
+    }
     mummy.x += mummy.direction * 0.55;
     mummy.tick++;
     if (mummy.x <= mummy.minX || mummy.x >= mummy.maxX) {
       mummy.direction *= -1;
     }
   });
+
+  if (player.attackTicks > 0) player.attackTicks--;
+  if (player.attackCooldown > 0) player.attackCooldown--;
 
   if (keys.ArrowRight || keys.d || keys.D) {
     player.vx = player.speed;
@@ -245,24 +334,28 @@ function update() {
   });
 
   mummies.forEach((mummy) => {
-    if (mummy.defeated) return;
+    if (mummy.defeated || mummy.dead) return;
     const overlapsMummy =
       player.x + player.w > mummy.x + 3 &&
       player.x < mummy.x + 27 &&
       player.y + player.h > mummy.y + 8 &&
       player.y < mummy.y + 38;
 
-    if (!overlapsMummy) return;
+    const attackX = player.facing > 0 ? player.x + player.w - 2 : player.x - 50;
+    const hitsWithSword =
+      player.attackTicks > 0 &&
+      attackX < mummy.x + 30 &&
+      attackX + 52 > mummy.x &&
+      player.y + player.h > mummy.y + 6 &&
+      player.y < mummy.y + 40;
 
-    const stompedMummy = oldY + player.h <= mummy.y + 14 && player.vy > 0;
-    if (stompedMummy) {
+    if (hitsWithSword && mummy.lastHitBy !== player.attackId) {
       mummy.defeated = true;
-      player.y = mummy.y - player.h;
-      player.vy = player.jump * 0.65;
-      player.grounded = false;
+      mummy.deathTick = 0;
+      mummy.lastHitBy = player.attackId;
       score += 100;
       updateHud();
-    } else if (player.invincible === 0) {
+    } else if (overlapsMummy && player.invincible === 0) {
       loseLife();
     }
   });
@@ -283,13 +376,13 @@ function update() {
     }
   });
 
-  gates.forEach((gate, index) => {
+  lessonScrolls.forEach((gate, index) => {
     const touchesGate =
       player.x + player.w > gate.x - 12 &&
       player.x < gate.x + 40 &&
       player.y + player.h > 310;
 
-    if (!gate.opened && touchesGate) openQuestion(index);
+    if (!gate.opened && touchesGate) openLesson(index);
   });
 
   cameraX = Math.max(0, Math.min(worldWidth - W, player.x - W * 0.32));
@@ -306,30 +399,31 @@ function updateHud() {
   $("coins").textContent = String(coins).padStart(3, "0");
   $("score").textContent = String(score).padStart(4, "0");
   $("lives").textContent = lives;
-  $("checkpointText").textContent = `◆ ${challengeCount}/3 desafios`;
+  $("checkpointText").textContent = `◆ ${lessonCount}/3 lições`;
 }
 
-function openQuestion(index) {
-  if (gates[index].opened || pausedForQuestion) return;
+function openLesson(index) {
+  if (lessonScrolls[index].opened || pausedForLesson) return;
 
-  pausedForQuestion = true;
-  const question = questions[index];
-  $("questionTitle").textContent = question.title;
-  $("questionHint").textContent = question.hint;
+  pausedForLesson = true;
+  const lesson = lessons[index];
+  $("lessonTitle").textContent = lesson.title;
+  $("lessonContent").textContent = lesson.content;
+  $("lessonPrompt").textContent = lesson.prompt;
 
   const visual = $("fractionVisual");
   visual.innerHTML = "";
-  for (let part = 0; part < question.total; part++) {
+  for (let part = 0; part < lesson.total; part++) {
     const piece = document.createElement("div");
-    piece.className = "fraction-piece" + (part < question.filled ? " filled" : "");
+    piece.className = "fraction-piece" + (part < lesson.filled ? " filled" : "");
     visual.appendChild(piece);
   }
 
   const buttons = $("answerButtons");
   buttons.innerHTML = "";
-  $("questionFeedback").textContent = "Escolha a resposta correta para abrir o caminho!";
+  $("lessonFeedback").textContent = "Confira a lição e escolha uma resposta para seguir.";
 
-  question.options.forEach((option) => {
+  lesson.options.forEach((option) => {
     const button = document.createElement("button");
     button.textContent = option;
     button.onclick = () => {
@@ -337,37 +431,37 @@ function openQuestion(index) {
         answer.disabled = true;
       });
 
-      if (option === question.answer) {
+      if (option === lesson.answer) {
         button.style.background = "#d9f7df";
         button.style.borderColor = "#45b96d";
-        $("questionFeedback").textContent = `✓ ${question.explain} +200 pontos!`;
+        $("lessonFeedback").textContent = `✓ ${lesson.explain} +200 pontos!`;
         score += 200;
-        challengeCount++;
-        gates[index].opened = true;
+        lessonCount++;
+        lessonScrolls[index].opened = true;
         updateHud();
         setTimeout(() => {
-          $("questionOverlay").classList.add("hidden");
-          pausedForQuestion = false;
+          $("lessonOverlay").classList.add("hidden");
+          pausedForLesson = false;
         }, 1100);
         return;
       }
 
       button.style.background = "#ffe1dc";
       button.style.borderColor = "#dc6b5b";
-      $("questionFeedback").textContent = `Tente novamente! Dica: ${question.hint}`;
+      $("lessonFeedback").textContent = "Quase! Leia a lição novamente e tente outra resposta.";
       setTimeout(() => {
         [...buttons.children].forEach((answer) => {
           answer.disabled = false;
           answer.style.background = "";
           answer.style.borderColor = "";
         });
-        $("questionFeedback").textContent = "Escolha a resposta correta para abrir o caminho.";
+        $("lessonFeedback").textContent = "Leia a lição e escolha uma resposta para seguir.";
       }, 900);
     };
     buttons.appendChild(button);
   });
 
-  $("questionOverlay").classList.remove("hidden");
+  $("lessonOverlay").classList.remove("hidden");
 }
 
 function loseLife() {
@@ -393,7 +487,7 @@ function finishGame() {
   running = false;
   $("endTitle").textContent = "TESOURO CONQUISTADO!";
   $("endText").textContent =
-    `Você terminou com ${score} pontos, ${coins} moedas e ${challengeCount}/3 desafios resolvidos.`;
+    `Você terminou com ${score} pontos, ${coins} moedas e ${lessonCount}/3 lições concluídas.`;
   $("endOverlay").classList.remove("hidden");
 }
 
@@ -410,31 +504,48 @@ function resetGame() {
   player.vx = 0;
   player.vy = 0;
   player.invincible = 0;
+  player.attackTicks = 0;
+  player.attackCooldown = 0;
+  player.attackId = 0;
   cameraX = 0;
   score = 0;
   coins = 0;
   lives = 3;
-  challengeCount = 0;
+  lessonCount = 0;
   finished = false;
-  pausedForQuestion = false;
+  pausedForLesson = false;
   coinItems.forEach((coin) => {
     coin.taken = false;
   });
   mummies.forEach((mummy) => {
     mummy.defeated = false;
+    mummy.dead = false;
     mummy.tick = 0;
+    mummy.deathTick = 0;
     mummy.direction = 1;
+    mummy.lastHitBy = 0;
   });
-  gates.forEach((gate) => {
+  lessonScrolls.forEach((gate) => {
     gate.opened = false;
   });
   updateHud();
   draw();
 }
 
+function attack() {
+  if (!running || pausedForLesson || finished || player.attackCooldown > 0) return;
+  player.attackTicks = 16;
+  player.attackCooldown = 24;
+  player.attackId++;
+}
+
 window.addEventListener("keydown", (event) => {
   if (["ArrowLeft", "ArrowRight", "ArrowUp", " "].includes(event.key)) {
     event.preventDefault();
+  }
+  if (["x", "X", "j", "J"].includes(event.key)) {
+    event.preventDefault();
+    if (!event.repeat) attack();
   }
   keys[event.key] = true;
 });

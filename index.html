@@ -19,26 +19,27 @@
   <main>
     <section class="game-frame">
       <canvas id="gameCanvas" width="960" height="540" aria-label="Jogo de plataforma Fractus"></canvas>
-      <!-- SPRITE DO JOGADOR: coloque seu arquivo em assets/sprites/personagens/jogador.png e configure SPRITE_CONFIG em js/game.js. -->
+      <!-- Sprites do aventureiro, das múmias e da espada ficam em assets/sprites/. -->
       <div class="overlay" id="startOverlay">
         <div class="title-card">
           <div class="title-sun">☀</div>
           <p class="kicker">UMA AVENTURA MATEMÁGICA</p>
           <h1>FRACTUS</h1>
           <h2>O TEMPLO DAS FRAÇÕES</h2>
-          <p class="intro">Corra, pule plataformas, colete moedas e resolva desafios para abrir o portal do templo!</p>
+          <p class="intro">Corra, pule, ataque as múmias com sua espada, leia os pergaminhos e aprenda frações para abrir o portal!</p>
           <button id="playBtn" class="big-button">JOGAR AGORA <span>▶</span></button>
-          <small>Use ← → ou A/D para correr · Espaço / ↑ para pular</small>
+          <small>← → ou A/D para correr · Espaço / ↑ para pular · X ou J para atacar</small>
         </div>
       </div>
-      <div class="overlay hidden" id="questionOverlay">
-        <div class="question-card">
-          <div class="question-badge">✦ DESAFIO DO TEMPLO ✦</div>
-          <h2 id="questionTitle">Qual fração está colorida?</h2>
-          <p id="questionHint">Observe as partes do artefato.</p>
+      <div class="overlay hidden" id="lessonOverlay">
+        <div class="lesson-card">
+          <div class="lesson-badge">✦ LIÇÃO DO TEMPLO ✦</div>
+          <h2 id="lessonTitle">O que uma fração representa?</h2>
+          <p id="lessonContent" class="lesson-content"></p>
+          <p id="lessonPrompt" class="lesson-prompt"></p>
           <div id="fractionVisual" class="fraction-visual"></div>
           <div id="answerButtons" class="answer-buttons"></div>
-          <p id="questionFeedback" class="question-feedback">Escolha a resposta correta para abrir o caminho!</p>
+          <p id="lessonFeedback" class="lesson-feedback">Leia a lição e escolha uma resposta para seguir.</p>
         </div>
       </div>
       <div class="overlay hidden" id="endOverlay">
@@ -52,7 +53,8 @@
     <div class="controls-hint">
       <span><kbd>←</kbd> <kbd>→</kbd> MOVER</span>
       <span><kbd>ESPAÇO</kbd> PULAR</span>
-      <span class="mission">MISSÃO: encontre o portal dourado! <span id="checkpointText">◆ 0/3 desafios</span></span>
+      <span><kbd>X</kbd> ATACAR</span>
+      <span class="mission">MISSÃO: encontre o portal dourado! <span id="checkpointText">◆ 0/3 lições</span></span>
     </div>
   </main>
   <footer>FEITO PARA APRENDER JOGANDO <span>✦</span> FRACTUS</footer>

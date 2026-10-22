@@ -1,35 +1,15 @@
-# Fractus — Plataforma 2D com espaço para sua sprite
+# Fractus — Aventura das Frações
 
-## Colocar seu bonequinho (sprite)
-1. Coloque seu arquivo na pasta `assets/sprites/personagens/`.
-2. Renomeie para `jogador.png` (ou mude o caminho em `SPRITE_CONFIG`).
-3. Abra `js/game.js` e procure `SPRITE_CONFIG` no começo do arquivo.
-4. Escolha o modo:
-   - **PNG de um personagem só:** `sheet: false`
-   - **Sprite sheet horizontal com quadros lado a lado:** `sheet: true`, configure `frameWidth`, `frameHeight` e `frames`.
-5. Ajuste `drawWidth` e `drawHeight` para o tamanho que quiser no jogo.
+## Sprites
+As sprites já estão incluídas no projeto:
 
-Exemplo de configuração:
-```js
-const SPRITE_CONFIG = {
-  src: "assets/sprites/personagens/jogador.png",
-  sheet: true,
-  frameWidth: 64,
-  frameHeight: 64,
-  frames: 6,
-  frameSpeed: 8,
-  drawWidth: 52,
-  drawHeight: 58
-};
-```
+- `assets/sprites/personagens/adventurer.png`: personagem jogável.
+- `assets/sprites/inimigos/mummy.png`: múmias que patrulham as plataformas.
+- `assets/sprites/armas/sword.png`: sprite da espada, guardada para uso no jogo.
 
-**Atenção:** o modo `sheet: true` espera os quadros em uma única linha horizontal e todos do mesmo tamanho. Se sua sprite sheet tiver quadros em várias linhas, será necessário adaptar o recorte. Para sprites com fundo transparente, use PNG.
+O aventureiro e a múmia são sprite sheets recortadas pelo jogo. Para trocar os arquivos ou ajustar os quadros, edite `SPRITE_CONFIG` e as referências de imagem em `js/game.js`.
 
-Se o arquivo não for encontrado, o jogo mostra o personagem provisório e continua funcionando.
+## Como jogar
+Abra `index.html` no navegador ou use Live Server no VS Code. Mova-se com as setas ou A/D, pule com Espaço, W ou seta para cima e ataque com X ou J. Acerte a múmia com a espada para derrotá-la; ela mostra a animação completa até virar areia. Encostar nela sem atacar tira uma vida.
 
-## Colocar sprites de prêmios
-Coloque imagens em `assets/sprites/premios/`, por exemplo `moeda.png`, `gema.png` e `bau.png`. A pasta está preparada; o desenho das moedas ainda é provisório no JavaScript.
-
-## Executar
-Abra `index.html` no navegador ou use Live Server no VS Code.
-Controles: setas ou A/D para mover; Espaço, W ou seta para cima para pular.
+Encontre os pergaminhos desenhados no cenário e leia as três lições interativas: partes de um inteiro, frações equivalentes e soma de frações com denominadores iguais. Responda corretamente para abrir o caminho.

@@ -132,7 +132,7 @@ canvas {
 }
 
 .title-card,
-.question-card {
+.lesson-card {
   width: 100%;
   max-width: 500px;
   padding: 26px 30px;
@@ -211,26 +211,43 @@ canvas {
   font-size: 10px;
 }
 
-.question-card {
+.lesson-card {
   max-width: 540px;
   padding: 24px;
 }
 
-.question-badge {
+.lesson-badge {
   color: #8a63da;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 2px;
 }
 
-.question-card h2 {
+.lesson-card h2 {
   margin: 12px 0 5px;
   font-size: 25px;
 }
 
-.question-card > p {
+.lesson-card > p {
   color: #756d91;
   font-size: 13px;
+}
+
+.lesson-content {
+  margin: 12px 0;
+  padding: 12px 14px;
+  border-left: 4px solid #d5aa62;
+  border-radius: 8px;
+  color: #594b37 !important;
+  background: #fff0c8;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.lesson-prompt {
+  margin: 12px 0 6px;
+  color: #473674 !important;
+  font-weight: 700;
 }
 
 .fraction-visual {
@@ -283,7 +300,7 @@ canvas {
   opacity: 0.8;
 }
 
-.question-feedback {
+.lesson-feedback {
   min-height: 18px;
   margin-bottom: 0;
 }
@@ -390,7 +407,7 @@ footer span {
   }
 
   .title-card,
-  .question-card {
+  .lesson-card {
     padding: 17px;
   }
 
@@ -398,7 +415,7 @@ footer span {
     font-size: 12px;
   }
 
-  .question-card h2 {
+  .lesson-card h2 {
     font-size: 20px;
   }
 
